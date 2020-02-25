@@ -1,0 +1,23 @@
+{
+  "name": "vuex-typed",
+  "version": "0.1.0",
+  "description": "Package for writing typed Vuex store with component helpers",
+  "main": "./dist/index.js",
+  "types": "./dist/types.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "echo \"No tests specified.\" && exit 1"
+  },
+  "author": "Miłosz Mandowski <milosz.m20@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^25.1.3",
+    "jest": "^25.1.0",
+    "ts-jest": "^25.2.1",
+    "typescript": "^3.8.2"
+  }
+}
