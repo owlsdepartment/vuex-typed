@@ -1,16 +1,18 @@
 {
     "compilerOptions": {
         "declaration": true,
-        "declarationDir": "./dist",
+        "declarationDir": "./dist/types",
         "module": "commonjs",
+        "moduleResolution": "node",
         "noImplicitAny": true,
         "lib": ["ES2017", "ES7", "ES6", "DOM"],
-        "outDir": "./dist",
+        "outDir": "./dist/lib",
         "target": "ES5",
-        "moduleResolution": "classic"
+        "strict": true
     },
     "include": [
-        "src/**/*"
+        "src/**/*.ts",
+        "src/**/*.d.ts"
     ],
     "exclude": ["node_modules", "dist"]
 }
