@@ -103,5 +103,99 @@ export type GlobalActions = typeof actions
 
 ```
 
-By using `ActionContext` and telling that first argument of method is of type `Ctx`, TypeScript knows what are module mutations, what is state type and what Getters are available and all of it is typed.
+By using `ActionContext` and specifying that first argument of method is of type `Ctx`, TypeScript knows what are module mutations, what is state type and what Getters are available, and all of it is typed.
 
+Action Context signature
+
+```typescript
+export interface ActionContext<State, RootState, Getters, RootGetters, Mutations> {
+  state: State,
+  rootState: RootState,
+  getters: Getters,
+  rootGetters: RootGetters,
+  commit: Commit<Mutations>,
+  dispatch: Dispatch<any>
+}
+```
+If you don't want some Generics to be typed, just pass any.
+
+Then we can wrap a whole module like this:
+
+```typescirpt
+import { state } from './state'
+import { mutations } from './mutations'
+import { getters } from './getters'
+import { actions } from './actions'
+
+const global = {
+  namespaced: true,
+  state,
+  mutations,
+  getters,
+  actions
+}
+
+export default global
+```
+
+## Exposing to components
+
+Having all of module parts typed, makes it possible to expose it for components as also typed.
+We can achieve it by using `mapModule` helper. Under the hood, it uses Vuex's `mapState`, `mapGetters`, `mapMutations` and `mapActions`.
+
+```typescirpt
+export const { state, getters, mutations, actions } = mapModule(global, 'global')
+```
+
+Then in component we can just import it like this:
+
+```vue
+<template>
+  <div class="wrapper">
+    {{ allEntries }}
+  
+    <button type="button" @click="toggleDarkMode">
+      Toggle Dark Mode
+    </button>
+  </div>
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+
+import { actions, mutations, getters } from '@/store/modules/global/helpers'
+
+// to just tak specific parts you can destructure it
+const { fetchEntries } = actions
+const { SET_DARK_MODE } = mutations
+
+export default Vue.extend({
+  computed: {
+    // to take all, just spread it
+    ...getters
+  },
+
+  mounted() {
+    this.fetchEntries(0)
+  },
+
+  methods: {
+    fetchEntries,
+    SET_DARK_MODE,
+    
+    toggleDarkMode() {
+      this.SET_DARK_MODE(!this.darkMode)
+    }
+  }
+})
+</script>
+```
+
+`mapModule` signature:
+
+```typescript
+function mapModule<State, Getters, Mutations, Actions>(
+  module: Module<State, Getters, Mutations, Actions>,
+  namespace: string = ''
+): MappedModule<State, Getters, Mutations, Actions>
+```
