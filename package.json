@@ -1,5 +1,5 @@
 {
-  "name": "vuex-typed",
+  "name": "@owlsdepartment/vuex-typed",
   "version": "1.0.0",
   "description": "Package for writing typed Vuex store with component helpers",
   "main": "./dist/lib/index.js",
