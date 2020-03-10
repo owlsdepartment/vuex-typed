@@ -3,11 +3,11 @@ Package to help typing Vuex using TypeScript, also in components!
 
 To add id to project
 ```
-npm install vuex-typed
+npm install @owlsdepartment/vuex-typed
 
 // or if you use yarn
 
-yarn add vuex-typed
+yarn add @owlsdepartment/vuex-typed
 ```
 
 ## Usage in store
