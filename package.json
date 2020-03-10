@@ -2,6 +2,8 @@
   "name": "@owlsdepartment/vuex-typed",
   "version": "1.0.0",
   "description": "Package for writing typed Vuex store with component helpers",
+  "homepage": "https://github.com/owlsdepartment/vuex-typed",
+  "repository": "github:owlsdepartment/vuex-typed",
   "main": "./dist/lib/index.js",
   "types": "./dist/types/index.d.ts",
   "files": [
