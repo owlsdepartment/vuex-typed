@@ -1,6 +1,6 @@
 {
   "name": "@owlsdepartment/vuex-typed",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Package for writing typed Vuex store with component helpers",
   "homepage": "https://github.com/owlsdepartment/vuex-typed",
   "repository": "github:owlsdepartment/vuex-typed",
