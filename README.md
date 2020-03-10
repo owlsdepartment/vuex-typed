@@ -165,7 +165,7 @@ import Vue from 'vue'
 
 import { actions, mutations, getters } from '@/store/modules/global/helpers'
 
-// to just tak specific parts you can destructure it
+// to take specific parts you can destructure it
 const { fetchEntries } = actions
 const { SET_DARK_MODE } = mutations
 
