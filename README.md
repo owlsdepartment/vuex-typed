@@ -3,7 +3,7 @@ Package to help typing Vuex using TypeScript, also in components!
 
 To add id to project
 ```
-npm install --save vuex-typed
+npm install vuex-typed
 
 // or if you use yarn
 
@@ -121,7 +121,7 @@ If you don't want some Generics to be typed, just pass any.
 
 Then we can wrap a whole module like this:
 
-```typescirpt
+```typescript
 import { state } from './state'
 import { mutations } from './mutations'
 import { getters } from './getters'
@@ -143,7 +143,7 @@ export default global
 Having all of module parts typed, makes it possible to expose it for components as also typed.
 We can achieve it by using `mapModule` helper. Under the hood, it uses Vuex's `mapState`, `mapGetters`, `mapMutations` and `mapActions`.
 
-```typescirpt
+```typescript
 export const { state, getters, mutations, actions } = mapModule(global, 'global')
 ```
 
