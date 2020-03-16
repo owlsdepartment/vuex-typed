@@ -27,7 +27,7 @@ In types suggested by Vue, you have typings for functions arguments, but you loo
 
 This typings force you to type function signature by your own, but you gain typings in module AND in components.
 
-Minimal example:
+Minimal example in module named `global`:
 
 ```typescript
 // State
