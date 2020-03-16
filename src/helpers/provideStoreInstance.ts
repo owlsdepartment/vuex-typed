@@ -2,7 +2,7 @@ import { Computed } from 'vuex'
 import { getStore } from '../helpers'
 
 function mappedComputed(cb: Function) {
-    return cb.bind({ $store: getStore() })
+    return (...args: any[]) => cb.apply({ $store: getStore() }, args)
 }
 
 export function provideStoreInstance(mapped: { [key: string]: Computed }) {
