@@ -11,5 +11,9 @@ export function registerStore<S>(store: Store<S>) {
 }
 
 export function getStore() {
+    if (!_store) {
+        console.error('[vuex-typed] Store wasn\'t registered!')
+    }
+
     return _store
 }
