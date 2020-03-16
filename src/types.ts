@@ -1,3 +1,6 @@
+/**
+ * Overall module type. Probably no need to use it
+ */
 export interface Module<S, G extends ObjectWithMethods, M extends ObjectWithMethods, A extends ObjectWithMethods> {
     namespaced?: boolean,
     state?: S,
@@ -7,27 +10,9 @@ export interface Module<S, G extends ObjectWithMethods, M extends ObjectWithMeth
     modules?: { [key: string]: Module<any, any, any, any> }
 }
 
-export interface CommitOptions {
-    silent?: boolean;
-    root?: boolean;
-}
-
-export interface DispatchOptions {
-    root?: boolean;
-}
-
-export type ObjectWithMethods = { [k: string]: (...args: any[]) => any }
-type SecondParam<T extends ObjectWithMethods, K extends keyof T> = Parameters<T[K]>[1]
-
-interface Operation<O extends ObjectWithMethods, Opt> {
-    <K extends keyof O, P extends SecondParam<O, K>>(payloadWithType: { type: K } & P, options?: Opt): void;
-    <K extends keyof O, P extends SecondParam<O, K>>(type: K, payload: P, options?: Opt): void;
-}
-
-export interface Commit<O extends ObjectWithMethods> extends Operation<O, CommitOptions> { }
-
-export interface Dispatch<O extends ObjectWithMethods> extends Operation<O, DispatchOptions> { }
-
+/**
+ * Helper type to create vuex actions context object based on other moudle parts
+ */
 export interface ActionContext<S, RS, G, RG, M extends ObjectWithMethods> {
     state: S,
     rootState: RS,
@@ -37,15 +22,66 @@ export interface ActionContext<S, RS, G, RG, M extends ObjectWithMethods> {
     dispatch: Dispatch<any>
 }
 
-export interface MappedModule<S, G extends ObjectWithMethods, M extends ObjectWithMethods, A extends ObjectWithMethods> {
-    state: S,
+export interface Commit<O extends ObjectWithMethods> extends Operation<O, CommitOptions> { }
+
+export interface Dispatch<O extends ObjectWithMethods> extends Operation<O, DispatchOptions> { }
+
+interface CommitOptions {
+    silent?: boolean;
+    root?: boolean;
+}
+
+interface DispatchOptions {
+    root?: boolean;
+}
+
+interface Operation<O extends ObjectWithMethods, Opt> {
+    <K extends keyof O, P extends OptionalSecondParam<O, K>>(type: K, payload: P, options?: Opt): void;
+    (type: string, payload?: any, options?: Opt): void;
+    <K extends keyof O, P extends OptionalSecondParam<O, K>>(payloadWithType: { type: K } & P, options?: Opt): void;
+    (payloadWithType: { type: string } & Dictionary, options?: Opt): void;
+}
+
+/**
+ * Mapping types
+ */
+
+export interface MappedModule<S extends State, G extends ObjectWithMethods, M extends ObjectWithMethods, A extends ObjectWithMethods> {
+    state: MappedState<S>,
     getters: MappedGetters<G>,
     mutations: MappedMutations<M>,
     actions: MappedActions<A>
 }
 
-type MappedGetters<T extends ObjectWithMethods> = { [K in keyof T]: ReturnType<T[K]> }
+export type MappedState<S extends State> = {
+    [K in keyof S]: () => S extends ((...args: any) => any)
+        ? ReturnType<S>[K]
+        : S[K]
+}
 
-type MappedMutations<T extends ObjectWithMethods> = { [K in keyof T]: (payload: SecondParam<T, K>) => void }
+export type MappedGetters<G extends ObjectWithMethods> = {
+    [K in keyof G]: () => ReturnType<G[K]>
+}
 
-type MappedActions<T extends ObjectWithMethods> = { [K in keyof T]: (payload: SecondParam<T, K>) => ReturnType<T[K]> }
+export type MappedMutations<M extends ObjectWithMethods> = {
+    [K in keyof M]: (payload: OptionalSecondParam<M, K>) => void
+}
+
+export type MappedActions<A extends ObjectWithMethods> = {
+    [K in keyof A]: (payload: OptionalSecondParam<A, K>) => ReturnType<A[K]>
+}
+
+export interface ObjectWithMethods {
+    [k: string]: (...args: any[]) => any
+}
+
+export type State = object | (() => object)
+
+interface Dictionary<T = any> {
+    [key: string]: T
+}
+
+type SecondParam<T extends ObjectWithMethods, K extends keyof T> = Parameters<T[K]>[1]
+
+type OptionalSecondParam<T extends ObjectWithMethods, K extends keyof T, O = SecondParam<T, K>> =
+    O extends undefined ? void : O;
