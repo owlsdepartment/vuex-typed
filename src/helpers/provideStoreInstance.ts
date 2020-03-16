@@ -5,7 +5,7 @@ function mappedComputed(cb: Function) {
     return cb.bind({ $store: getStore() })
 }
 
-export function provideSotreInstance(mapped: { [key: string]: Computed }) {
+export function provideStoreInstance(mapped: { [key: string]: Computed }) {
     const ret: { [key: string]: Function } = {}
 
     for (let k in mapped) {
