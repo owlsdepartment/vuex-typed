@@ -24,7 +24,7 @@ export interface ActionContext<S, RS, G, RG, M extends ObjectWithMethods> {
 
 export interface Commit<O extends ObjectWithMethods> extends Operation<O, CommitOptions> { }
 
-export interface Dispatch<O extends ObjectWithMethods> extends Operation<O, DispatchOptions> { }
+export interface Dispatch<O extends ObjectWithMethods> extends Operation<O, DispatchOptions, Promise<any>> { }
 
 interface CommitOptions {
     silent?: boolean;
@@ -35,11 +35,11 @@ interface DispatchOptions {
     root?: boolean;
 }
 
-interface Operation<O extends ObjectWithMethods, Opt> {
-    <K extends keyof O, P extends OptionalSecondParam<O, K>>(type: K, payload: P, options?: Opt): void;
-    (type: string, payload?: any, options?: Opt): void;
-    <K extends keyof O, P extends OptionalSecondParam<O, K>>(payloadWithType: { type: K } & P, options?: Opt): void;
-    (payloadWithType: { type: string } & Dictionary, options?: Opt): void;
+interface Operation<O extends ObjectWithMethods, Opt, Ret = void> {
+    <K extends keyof O, P extends OptionalSecondParam<O, K>>(type: K, payload: P, options?: Opt): Ret;
+    (type: string, payload?: any, options?: Opt): Ret;
+    <K extends keyof O, P extends OptionalSecondParam<O, K>>(payloadWithType: { type: K } & P, options?: Opt): Ret;
+    (payloadWithType: { type: string } & Dictionary, options?: Opt): Ret;
 }
 
 /**
@@ -68,7 +68,9 @@ export type MappedMutations<M extends ObjectWithMethods> = {
 }
 
 export type MappedActions<A extends ObjectWithMethods> = {
-    [K in keyof A]: (payload: OptionalSecondParam<A, K>) => ReturnType<A[K]>
+    [K in keyof A]: <Ret = ReturnType<A[K]>>(
+        payload: OptionalSecondParam<A, K>
+    ) => Ret extends Promise<any> ? Ret : Promise<Ret>
 }
 
 export interface ObjectWithMethods {
