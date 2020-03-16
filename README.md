@@ -1,7 +1,7 @@
 # Vuex Typed
 Package to help typing Vuex using TypeScript, also in components!
 
-To add id to project
+To add library to project
 ```
 npm install @owlsdepartment/vuex-typed
 
@@ -10,21 +10,30 @@ npm install @owlsdepartment/vuex-typed
 yarn add @owlsdepartment/vuex-typed
 ```
 
+To enable import helpers
+
+```typescript
+// in store.ts or main.ts
+
+import { registerStore } from '@owlsdepartment/vuex-typed'
+import store from './store'
+
+registerStore(store)
+```
+
 ## Usage in store
 
 In types suggested by Vue, you have typings for functions arguments, but you loose knowledge about functions names.
 
 This typings force you to type function signature by your own, but you gain typings in module AND in components.
 
-This is how you would do it:
+Minimal example in module named `global`:
 
 ```typescript
 // State
 
 export const state = {
-  darkMode: false,
-  entries: {} as { [key: string]: Entry },
-  openModals: {} as { [key: string]: boolean }
+  entries: {} as { [key: string]: Entry }
 }
 
 export type GlobalState = typeof state
@@ -32,13 +41,7 @@ export type GlobalState = typeof state
 // Getters
 
 export const getters = {
-  darkMode: (state: GlobalState) => state.darkMode,
-
-  allEntries: ({ entries }: GlobalState) => Object.values(entries),
-
-  amountOfOpenModals: ({ openModals }: GlobalState) => Object.values(openModals).reduce((prev, curr) => {
-    return curr ? prev + 1 : prev
-  }, 0)
+  allEntries: ({ entries }: GlobalState) => Object.values(entries)
 }
 
 export type GlobalGetters = typeof getters
@@ -46,46 +49,30 @@ export type GlobalGetters = typeof getters
 // Mutations
 
 export const mutations = {
-  SET_DARK_MODE(state: GlobalState, active: boolean) {
-    state.darkMode = active
-  },
-
-  SET_ENTRY({ entries }: GlobalState, { entry }: { entry: Entry }) {
-    Vue.set(entries, entry.id, entry)
-  },
-
-  REMOVE_ENTRY({ entries }: GlobalState, id: number) {
-    Vue.delete(entries, id)
-  },
-
-  OPEN_MODAL({ openModals }: GlobalState, name: string) {
-    Vue.set(openModals, name, true)
-  },
-
-  CLOSE_MODAL({ openModals }: GlobalState, name: string) {
-    Vue.delete(openModals, name)
+  SET_ENTRIES({ entries }: GlobalState, newEntries: Entry[]) {
+    for (let entry of newEntries) {
+      Vue.set(entries, entry.id, entry)
+    }
   }
 }
 
 export type GlobalMutations = typeof mutations
 
-```
-
-As you can see, you don't use anything from library, not yet! Fun begin in actions
-
-```typescript
 // Actions
+import { ActionContext } from '@owlsdepartment/vuex-typed'
 
-import { ActionContext } from 'vuex-typed'
-
+// Helper type built based on other parts of module. Context object is almost fully typed with it
+// expect dispatch and root commits
 type Ctx = ActionContext<GlobalState, RootState, GlobalGetters, any, GlobalMutations>
 
 export const actions = {
   async fetchEntries({ commit }: Ctx, projectId: number) {
     console.log(`Fetching entries for project ${projectId}`)
 
+    // simulating async call
     await new Promise(resolve => setTimeout(resolve, 500))
 
+    // some entries
     const response: Entry[] = [
       { id: 0, name: 'AEntry' },
       { id: 1, name: 'BEntry' },
@@ -93,6 +80,7 @@ export const actions = {
       { id: 3, name: 'AEntry', optional: { configurable: true } }
     ]
 
+    // typed commit
     commit('SET_ENTRIES', response)
 
     return response
@@ -101,11 +89,108 @@ export const actions = {
 
 export type GlobalActions = typeof actions
 
+// Module
+
+export const global = {
+  namespaced: true,
+  state,
+  mutations,
+  getters,
+  actions
+}
 ```
 
-By using `ActionContext` and specifying that first argument of method is of type `Ctx`, TypeScript knows what are module mutations, what is state type and what Getters are available, and all of it is typed.
+By using `ActionContext` (generic type from library) and specifying that first argument of method is of type `Ctx`, TypeScript knows what are module mutations, what is state type and what Getters are available, and all of it is typed.
 
-Action Context signature
+## Exposing module as seperate imports for other parts of application
+
+With strongly typed store, it would be a shame to loose it in components. That's why there are special methods, that make it possible.
+
+To properly setup library, you need to register store in `store` file or `main` using method `registerStore`.
+
+```typescript
+import { registerStore } from '@owlsdepartment/vuex-typed'
+import store from './store'
+
+registerStore(store)
+```
+
+Now you can expose state, actions, mutations and getters. Using previouse `store` example:
+```typescript
+// state.ts
+export const { entries } = getState(state, 'global')
+
+// getters.ts
+export const { allEntries } = getGetters(getters, 'global')
+
+// mutations.ts
+export const { SET_ENTRIES } = getMutations(mutations, 'global')
+
+// actions.ts
+export const { fetchEntries } = getActions(actions, 'global')
+
+```
+Or whole module at once
+```typescript
+export const { state, getters, mutations, actions } = getModuleImports(global, 'global')
+```
+
+Every method expects object as first argument (or method in case of `getState`) and optional `namespace` as a second argument in case of namespaced modules.
+
+All `getXXX` methods uses Vuex's `mapState`, `mapGetters`, `mapMutations` and `mapActions` under the hood.
+
+Usage example in Vue component:
+
+```vue
+<template>
+  <!-- some template -->
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+import { fetchEntries } from '@/store/modules/global/actions'
+import { SET_ENTRIES } from '@/store/modules/global/mutations'
+import { allEntries } from '@/store/modules/global/getters'
+import { state as globalState } from '@/store/module/global'
+
+export default Vue.extend({
+  computed: {
+    // spread whole state
+    ...globalState,
+
+    // if you want to expose getter of state to template, you need to use it in computed...
+    allEntries,
+  },
+
+  mounted() {
+    // ...but if you just use it inside <script>, there's no need for that
+    fetchEntries(0)
+  },
+
+  methods: {
+    removeAll() {
+      SET_ENTRIES([])
+    }
+  }
+})
+</script>
+```
+
+Usage example in normal `.ts/.js` file:
+```typescript
+import { fetchEntries } from '@/store/modules/global/actions'
+import { allEntries } from '@/store/modules/global/getters'
+
+const onUserLogin = () => {
+  if (allEntries().length === 0) {
+    fetchEntries()
+  }
+}
+```
+
+## API
+
+### ActionContext signature
 
 ```typescript
 export interface ActionContext<State, RootState, Getters, RootGetters, Mutations> {
@@ -119,79 +204,7 @@ export interface ActionContext<State, RootState, Getters, RootGetters, Mutations
 ```
 If you don't want some Generics to be typed, just pass any.
 
-Then we can wrap a whole module like this:
-
-```typescript
-import { state } from './state'
-import { mutations } from './mutations'
-import { getters } from './getters'
-import { actions } from './actions'
-
-const global = {
-  namespaced: true,
-  state,
-  mutations,
-  getters,
-  actions
-}
-
-export default global
-```
-
-## Exposing to components
-
-Having all of module parts typed, makes it possible to expose it for components as also typed.
-We can achieve it by using `mapModule` helper. Under the hood, it uses Vuex's `mapState`, `mapGetters`, `mapMutations` and `mapActions`.
-
-```typescript
-export const { state, getters, mutations, actions } = mapModule(global, 'global')
-```
-
-Then in component we can just import it like this:
-
-```vue
-<template>
-  <div class="wrapper">
-    {{ allEntries }}
-  
-    <button type="button" @click="toggleDarkMode">
-      Toggle Dark Mode
-    </button>
-  </div>
-</template>
-
-<script lang="ts">
-import Vue from 'vue'
-
-import { actions, mutations, getters } from '@/store/modules/global/helpers'
-
-// to take specific parts you can destructure it
-const { fetchEntries } = actions
-const { SET_DARK_MODE } = mutations
-
-export default Vue.extend({
-  computed: {
-    // to take all, just spread it
-    ...getters
-  },
-
-  mounted() {
-    this.fetchEntries(0)
-  },
-
-  methods: {
-    fetchEntries,
-    SET_DARK_MODE,
-    
-    toggleDarkMode() {
-      this.SET_DARK_MODE(!this.darkMode)
-    }
-  }
-})
-</script>
-```
-
-`mapModule` signature:
+### getModuleImports
 
 ```typescript
 function mapModule<State, Getters, Mutations, Actions>(
@@ -199,3 +212,31 @@ function mapModule<State, Getters, Mutations, Actions>(
   namespace: string = ''
 ): MappedModule<State, Getters, Mutations, Actions>
 ```
+
+### getState
+
+```typescript
+function getState<State extends object | (() => object)>(state: State, namespace: string = ''): MappedState<State>
+```
+
+### getMutations
+
+```typescript
+function getMutations<Mutations>(mutations: Mutations, namespace: string = ''): MappedMutations<Mutations>
+```
+
+### getGetters
+
+```typescript
+function getGetters<Getters>(getters: Getters, namespace: string = ''): MappedGetters<Getters>
+```
+
+### getActions
+
+```typescript
+function getActions<Actions>(actions: Actions, namespace: string = ''): MappedActions<Actions>
+```
+
+## Project Status
+
+Project is new and maintained. And feedback, questions and issues are appreciated.
