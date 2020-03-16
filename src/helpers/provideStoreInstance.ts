@@ -1,7 +1,8 @@
-import { Computed } from "vuex";
+import { Computed } from 'vuex'
+import { getStore } from '../helpers'
 
 function mappedComputed(cb: Function) {
-    return cb.bind({ $store: {} })
+    return cb.bind({ $store: getStore() })
 }
 
 export function provideSotreInstance(mapped: { [key: string]: Computed }) {
