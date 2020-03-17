@@ -13,8 +13,8 @@ export interface Module<S, G extends ObjectWithMethods, M extends ObjectWithMeth
 /**
  * Helper type to create vuex actions context object based on other moudle parts
  */
-export interface ActionContext<S, RS, G, RG, M extends ObjectWithMethods> {
-    state: S,
+export interface ActionContext<S extends State, RS, G, RG, M extends ObjectWithMethods> {
+    state: ExtractState<S>,
     rootState: RS,
     getters: G,
     rootGetters: RG,
@@ -54,9 +54,7 @@ export interface MappedModule<S extends State, G extends ObjectWithMethods, M ex
 }
 
 export type MappedState<S extends State> = {
-    [K in keyof S]: () => S extends ((...args: any) => any)
-        ? ReturnType<S>[K]
-        : S[K]
+    [K in keyof S]: () => ExtractState<S>[K]
 }
 
 export type MappedGetters<G extends ObjectWithMethods> = {
@@ -78,6 +76,8 @@ export interface ObjectWithMethods {
 }
 
 export type State = object | (() => object)
+
+type ExtractState<S extends State> = S extends (() => object) ? ReturnType<S> : S
 
 interface Dictionary<T = any> {
     [key: string]: T

@@ -1,6 +1,6 @@
 import { provideStoreInstance } from './provideStoreInstance'
 
-export function createImports(object: any, method: Function, namespace: string = '') {
+export function createImports<T extends object>(object: T, method: Function, namespace: string = '') {
     if (!object) {
         return {}
     }
