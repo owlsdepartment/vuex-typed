@@ -53,8 +53,8 @@ export interface MappedModule<S extends State, G extends ObjectWithMethods, M ex
     actions: MappedActions<A>
 }
 
-export type MappedState<S extends State> = {
-    [K in keyof S]: () => ExtractState<S>[K]
+export type MappedState<S extends State, Out = ExtractState<S>> = {
+    [K in keyof Out]: () => Out[K]
 }
 
 export type MappedGetters<G extends ObjectWithMethods> = {
