@@ -3,7 +3,7 @@ Package to help typing Vuex using TypeScript, also in components!
 
 To add library to project
 ```
-npm install @owlsdepartment/vuex-typed
+npm install --save @owlsdepartment/vuex-typed
 
 // or if you use yarn
 
@@ -21,13 +21,14 @@ import store from './store'
 registerStore(store)
 ```
 
-## Usage in store
+## Motivations
 
-In types suggested by Vue, you have typings for functions arguments, but you loose knowledge about functions names.
-
+In types suggested by Vue, you have typings for functions arguments, but you lose knowledge about functions names.
 This typings force you to type function signature by your own, but you gain typings in module AND in components.
 
-Minimal example in module named `global`:
+## Usage in store
+
+Minimal example of module definition named `global`:
 
 ```typescript
 // State
@@ -100,11 +101,11 @@ export const global = {
 }
 ```
 
-By using `ActionContext` (generic type from library) and specifying that first argument of method is of type `Ctx`, TypeScript knows what are module mutations, what is state type and what Getters are available, and all of it is typed.
+By using `ActionContext` (generic type from library not from `vue`) and specifying that first argument of method is of type `Ctx`, TypeScript knows what are module mutations, what is state type and what Getters are available, and all of it is typed.
 
 ## Exposing module as seperate imports for other parts of application
 
-With strongly typed store, it would be a shame to loose it in components. That's why there are special methods, that make it possible.
+With strongly typed store, it would be a shame to lose it in components. That's why there are special methods, that make it possible.
 
 To properly setup library, you need to register store in `store` file or `main` using method `registerStore`.
 
@@ -240,3 +241,7 @@ function getActions<Actions>(actions: Actions, namespace: string = ''): MappedAc
 ## Project Status
 
 Project is new and maintained. And feedback, questions and issues are appreciated.
+
+## License
+
+Library is under [MIT License](https://opensource.org/licenses/MIT)
