@@ -13,13 +13,38 @@ export interface Module<S, G extends ObjectWithMethods, M extends ObjectWithMeth
 /**
  * Helper type to create vuex actions context object based on other moudle parts
  */
-export interface ActionContext<S extends State, RS, G, RG, M extends ObjectWithMethods> {
-    state: ExtractState<S>,
-    rootState: RS,
-    getters: G,
-    rootGetters: RG,
-    commit: Commit<M>,
+export interface ActionContext<
+    State extends StateDef = any,
+    Getters extends ObjectWithMethods = any,
+    Mutations extends ObjectWithMethods = any,
+    RootState extends StateDef = any,
+    RootGetters extends ObjectWithMethods = any
+> {
+    state: ExtractState<State>,
+    getters: ExtractGetter<Getters>,
+    rootState: ExtractState<RootState>,
+    rootGetters: ExtractGetter<RootGetters>,
+    commit: Commit<Mutations>,
     dispatch: Dispatch<any>
+}
+
+export interface ActionContextDeprecated<
+    State extends StateDef = any,
+    RootState extends StateDef = any,
+    Getters extends ObjectWithMethods = any,
+    RootGetters extends ObjectWithMethods = any,
+    Mutations extends ObjectWithMethods = any
+> {
+    state: ExtractState<State>,
+    getters: ExtractGetter<Getters>,
+    rootState: ExtractState<RootState>,
+    rootGetters: ExtractGetter<RootGetters>,
+    commit: Commit<Mutations>,
+    dispatch: Dispatch<any>
+}
+
+export type ExtractGetter<Getter extends ObjectWithMethods> = {
+    [K in keyof Getter]: ReturnType<Getter[K]>
 }
 
 export interface Commit<O extends ObjectWithMethods> extends Operation<O, CommitOptions> { }
@@ -46,14 +71,14 @@ interface Operation<O extends ObjectWithMethods, Opt, Ret = void> {
  * Mapping types
  */
 
-export interface MappedModule<S extends State, G extends ObjectWithMethods, M extends ObjectWithMethods, A extends ObjectWithMethods> {
+export interface MappedModule<S extends StateDef, G extends ObjectWithMethods, M extends ObjectWithMethods, A extends ObjectWithMethods> {
     state: MappedState<S>,
     getters: MappedGetters<G>,
     mutations: MappedMutations<M>,
     actions: MappedActions<A>
 }
 
-export type MappedState<S extends State, Out = ExtractState<S>> = {
+export type MappedState<S extends StateDef, Out = ExtractState<S>> = {
     [K in keyof Out]: () => Out[K]
 }
 
@@ -75,9 +100,9 @@ export interface ObjectWithMethods {
     [k: string]: (...args: any[]) => any
 }
 
-export type State = object | (() => object)
+export type StateDef = object | (() => object)
 
-type ExtractState<S extends State> = S extends (() => object) ? ReturnType<S> : S
+type ExtractState<S extends StateDef> = S extends (() => object) ? ReturnType<S> : S
 
 interface Dictionary<T = any> {
     [key: string]: T

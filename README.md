@@ -194,16 +194,43 @@ const onUserLogin = () => {
 ### ActionContext signature
 
 ```typescript
-export interface ActionContext<State, RootState, Getters, RootGetters, Mutations> {
-  state: State,
-  rootState: RootState,
-  getters: Getters,
-  rootGetters: RootGetters,
-  commit: Commit<Mutations>,
-  dispatch: Dispatch<any>
+export interface ActionContext<
+    State = any,
+    Getters = any,
+    Mutations = any,
+    RootState = any,
+    RootGetters = any
+> {
+    state: ExtractState<State>,
+    getters: ExtractGetter<Getters>,
+    rootState: ExtractState<RootState>,
+    rootGetters: ExtractGetter<RootGetters>,
+    commit: Commit<Mutations>,
+    dispatch: Dispatch<any>
 }
 ```
-If you don't want some Generics to be typed, just pass any.
+If you don't want some Generics to be typed, just pass `any` or don't use them. All are typed as `any` by default.
+
+__Deprecated__
+
+This is deprecated `ActionContext` signature from version `v1.1.8`. In newer versions it is exposed as `ActionContextDeprecated`:
+
+```typescript
+export interface ActionContext<
+    State = any,
+    RootState = any,
+    Getters = any,
+    RootGetters = any,
+    Mutations = any
+> {
+    state: ExtractState<State>,
+    rootState: ExtractState<RootState>,
+    getters: ExtractGetter<Getters>,
+    rootGetters: ExtractGetter<RootGetters>,
+    commit: Commit<Mutations>,
+    dispatch: Dispatch<any>
+}
+```
 
 ### getModuleImports
 

@@ -2,7 +2,7 @@ import { getState } from './getState'
 import { getGetters } from './getGetters'
 import { getMutations } from './getMutations'
 import { getActions } from './getActions'
-import { ObjectWithMethods, Module, MappedModule, State } from '../types'
+import { ObjectWithMethods, Module, MappedModule, StateDef } from '../types'
 
 const fields = ['state', 'getters', 'mutations', 'actions'] as const
 const methods = {
@@ -12,7 +12,7 @@ const methods = {
   actions: getActions
 } as const
 
-export function getModuleImports<S extends State, G extends ObjectWithMethods, M extends ObjectWithMethods, A extends ObjectWithMethods>(
+export function getModuleImports<S extends StateDef, G extends ObjectWithMethods, M extends ObjectWithMethods, A extends ObjectWithMethods>(
   module: Module<S, G, M, A>, namespace: string = ''
 ) {
   const namespaced = !!module.namespaced

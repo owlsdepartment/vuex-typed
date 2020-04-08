@@ -1,8 +1,8 @@
 import { mapState } from 'vuex'
-import { MappedState, State } from '../types'
+import { MappedState, StateDef } from '../types'
 import { createImports } from '../helpers'
 
-export function getState<S extends State>(state: S, namespace: string = ''): MappedState<S> {
+export function getState<S extends StateDef>(state: S, namespace: string = ''): MappedState<S> {
     if (typeof state === 'function') {
         state = (state as Function)()
     }
