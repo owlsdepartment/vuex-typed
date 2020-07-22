@@ -51,20 +51,21 @@ export interface Commit<O extends ObjectWithMethods> extends Operation<O, Commit
 
 export interface Dispatch<O extends ObjectWithMethods> extends Operation<O, DispatchOptions, Promise<any>> { }
 
-interface CommitOptions {
+interface CommitOptions extends Options {
     silent?: boolean;
+}
+
+interface DispatchOptions extends Options { }
+
+interface Options {
     root?: boolean;
 }
 
-interface DispatchOptions {
-    root?: boolean;
-}
-
-interface Operation<O extends ObjectWithMethods, Opt, Ret = void> {
-    <K extends keyof O, P extends OptionalSecondParam<O, K>>(type: K, payload: P, options?: Opt): Ret;
-    (type: string, payload?: any, options?: Opt): Ret;
-    <K extends keyof O, P extends OptionalSecondParam<O, K>>(payloadWithType: { type: K } & P, options?: Opt): Ret;
-    (payloadWithType: { type: string } & Dictionary, options?: Opt): Ret;
+interface Operation<O extends ObjectWithMethods, Opt extends Options, Ret = void> {
+    <K extends keyof O>(type: K, payload?: OptionalSecondParam<O, K>, options?: Opt): Ret;
+    (type: string, payload: any, options: Opt & { root: true }): Ret;
+    <K extends keyof O>(payloadWithType: { type: K } & OptionalSecondParam<O, K>, options?: Opt): Ret;
+    (payloadWithType: { type: string } & object, options: Opt & { root: true }): Ret;
 }
 
 /**
@@ -103,10 +104,6 @@ export interface ObjectWithMethods {
 export type StateDef = object | (() => object)
 
 type ExtractState<S extends StateDef> = S extends (() => object) ? ReturnType<S> : S
-
-interface Dictionary<T = any> {
-    [key: string]: T
-}
 
 type SecondParam<T extends ObjectWithMethods, K extends keyof T> = Parameters<T[K]>[1]
 
