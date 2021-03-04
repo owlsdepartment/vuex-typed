@@ -20,8 +20,10 @@
     "build": "ttsc",
     "clean": "rm -rf ./dist",
     "prepare": "npm run install-peers && npm run test && npm run clean && npm run build",
-    "test": "echo \"No tests specified.\"",
-    "install-peers": "install-peers -f"
+    "install-peers": "install-peers -f",
+    "test": "node -v && npm run test:unit",
+    "test:unit": "NODE_ENV=test jest",
+    "test:unit:watch": "NODE_ENV=test jest --watch --coverage --coverage-reporters=lcov"
   },
   "author": "Miłosz Mandowski <milosz.m20@gmail.com>",
   "license": "MIT",

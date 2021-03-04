@@ -8,7 +8,7 @@ function mappedComputed(cb: Function) {
 export function provideStoreInstance(mapped: { [key: string]: Computed }) {
     const ret: { [key: string]: Function } = {}
 
-    for (let k in mapped) {
+    for (const k in mapped) {
         ret[k] = mappedComputed(mapped[k])
     }
 

@@ -1,0 +1,12 @@
+{
+    "extends": "../tsconfig.json",
+    "compilerOptions": {
+        "rootDir": "../",
+        // important for default exports
+        "esModuleInterop": true
+    },
+    "include": [
+        "./**/*.ts",
+        "./**/*.d.ts"
+    ]
+}
