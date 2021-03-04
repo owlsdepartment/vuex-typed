@@ -1,0 +1,24 @@
+import { ActionsDef, GettersDef, MutationsDef, StateDef } from "@/typings";
+import { ObjectWithMethods } from "@/typings/types";
+
+interface ModuleDef<
+    State extends StateDef,
+    Getters extends GettersDef<State>,
+    Mutations extends MutationsDef<State>,
+    Actions extends ObjectWithMethods = ActionsDef<State, Getters, Mutations>,
+> {
+    namespaced?: boolean,
+    state?: State,
+    getters?: Getters,
+    mutations?: Mutations,
+    actions?: Actions,
+}
+
+
+export function defineModule<
+    State extends StateDef,
+    Getters extends GettersDef<State>,
+    Mutations extends MutationsDef<State>
+>(module: ModuleDef<State, Getters, Mutations>) {
+    return module
+}

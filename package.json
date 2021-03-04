@@ -2,6 +2,13 @@
   "name": "@owlsdepartment/vuex-typed",
   "version": "1.3.0",
   "description": "Package for writing typed Vuex store with component helpers",
+  "keywords": [
+    "vue",
+    "vuex",
+    "vuex-typed",
+    "typescript",
+    "owlsdepartment"
+  ],
   "homepage": "https://github.com/owlsdepartment/vuex-typed",
   "repository": "github:owlsdepartment/vuex-typed",
   "main": "./dist/lib/index.js",
@@ -10,19 +17,24 @@
     "/dist"
   ],
   "scripts": {
-    "build": "tsc",
-    "prepare": "npm run build",
-    "test": "echo \"No tests specified.\" && exit 1"
+    "build": "ttsc",
+    "clean": "rm -rf ./dist",
+    "prepare": "npm run install-peers && npm run test && npm run clean && npm run build",
+    "test": "echo \"No tests specified.\"",
+    "install-peers": "install-peers -f"
   },
   "author": "Miłosz Mandowski <milosz.m20@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@types/jest": "^25.1.3",
+    "install-peers-cli": "^2.2.0",
     "jest": "^25.1.0",
     "ts-jest": "^25.2.1",
-    "typescript": "^3.8.2"
+    "ttypescript": "^1.5.12",
+    "typescript": "^3.8.2",
+    "typescript-transform-paths": "^2.2.3"
   },
-  "dependencies": {
+  "peerDependencies": {
     "vue": "^2.6.11",
     "vuex": "^3.1.2"
   }

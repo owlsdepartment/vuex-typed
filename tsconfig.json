@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+        "baseUrl": ".",
         "declaration": true,
         "declarationDir": "./dist/types",
         "module": "commonjs",
@@ -8,7 +9,14 @@
         "lib": ["ES2017", "ES7", "ES6", "DOM"],
         "outDir": "./dist/lib",
         "target": "ES5",
-        "strict": true
+        "strict": true,
+        "paths": {
+            "@/*": ["src/*"]
+        },
+        "plugins": [
+            { "transform": "typescript-transform-paths" },
+            { "transform": "typescript-transform-paths", "afterDeclarations": true }
+        ]
     },
     "include": [
         "src/**/*.ts",
