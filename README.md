@@ -1,13 +1,18 @@
 # Vuex Typed
-Package to help typing Vuex using TypeScript, also in components!
 
-To add library to project
-```
-npm install --save @owlsdepartment/vuex-typed
+Fully integrate TypeScript with Vuex, also in components, with little to none additional type annotations!
 
-// or if you use yarn
+---
 
+## Instalation
+
+To install library to project
+```bash
+# using yarn
 yarn add @owlsdepartment/vuex-typed
+
+# using npm
+npm install --save @owlsdepartment/vuex-typed
 ```
 
 To enable import helpers
@@ -18,96 +23,262 @@ To enable import helpers
 import { registerStore } from '@owlsdepartment/vuex-typed'
 import store from './store'
 
+// pass global store instance
 registerStore(store)
 ```
 
+_**Sidenote:** Currently library supports only one Vuex instance in whole project. This could be changed if there would ever be such need._
+
+---
+
 ## Motivations
 
-In types suggested by Vue, you have typings for functions arguments, but you lose knowledge about functions names.
-This typings force you to type function signature by your own, but you gain typings in module AND in components.
+In types suggested by Vue, you need to specify Vuex structure twice: as a type and as an implementation, which can feel like you double yourself and you loose type information in components.
 
-## Usage in store
+This typings force you to type function signature by your own, either fully or partially using `defineXXX` methods, but you gain typings in module AND in components.
 
-Minimal example of module definition named `global`:
+### _**I'm using Vuex with JavaScript, should I still care about it and use it?**_
+
+If you want help from your IDE, than yes, totally! This library is written in TS, but can be used in JS projects, as you will get benefits of intellisens.
+
+---
+
+# Usage guide
+
+Library splits to to independent parts:
+ * **defining store parts using `defineXXX`**
+ * **creating exports for components using `getXXX`**
+
+## Defining Vuex
+
+In medium or large Vuex applications, you will probably use modules. Even if not, root state is also a module.
+
+Modules consist of 4 parts:
+ * `state`
+ * `getters` | depends on `state`
+ * `mutations` | depends on `state`
+ * `actions` | depends on `state`, `mutations` and `getters`
+
+There are 3 ways you could write your module:
+1. all parts in one file and one object
+2. all parts in one file but in seperate variables, that you then merge in a single object
+3. all parts in seperate files
+
+In bigger projects, we suggest using 3rd option, in smaller ones, the 2nd one.
+
+There are 4 helpers, to help you define module and access benefits of types:
+ * `defineGetters`
+ * `defineMutations`
+ * `defineActions`
+ * `defineModule`
+
+Let's look at the examples of the same module `post`, declared in a 3 ways!
+
+### 1. All in one file
 
 ```typescript
-// State
-
-export const state = {
-  entries: {} as { [key: string]: Entry }
+interface Post {
+  id: number;
+  author: string;
+  text: string;
 }
 
-export type GlobalState = typeof state
+const module = defineModule({
+  state: {
+    posts: Post[],
+    // let's store `id` of a main post
+    mainPost: null as number | null
+  },
 
-// Getters
+  getters: {
+    // 👇 no need to annotate state type
+    getPostById: state => (id: number) => {
+      return state.posts.find(post => post.id === id)
+    },
 
-export const getters = {
-  allEntries: ({ entries }: GlobalState) => Object.values(entries)
-}
+    getMainPost: (state, getters) => {
+      // unfortunately, getters cannot self reference
+      // so they are typed as any
+      const { mainPost } = state
 
-export type GlobalGetters = typeof getters
+      return mainPost ? getters.getPostById(mainPost) : null
+    }
+  },
 
-// Mutations
+  mutations: {
+    // 👇 no need to annotate state type
+    postsFetched(state, newPosts: Post[]) {
+      this.posts = [...newPosts]
+    }
+  },
 
-export const mutations = {
-  SET_ENTRIES({ entries }: GlobalState, newEntries: Entry[]) {
-    for (let entry of newEntries) {
-      Vue.set(entries, entry.id, entry)
+  actions: {
+    // 👇 no need to annotate first argument
+    // but it's typed mostly as any
+    fetchPosts({ commit }) {
+      const newPosts = /* some api call */
+
+      commit('postsFetched', newPosts)
     }
   }
-}
-
-export type GlobalMutations = typeof mutations
-
-// Actions
-import { ActionContext } from '@owlsdepartment/vuex-typed'
-
-// Helper type built based on other parts of module. Context object is almost fully typed with it
-// expect dispatch and root commits
-type Ctx = ActionContext<GlobalState, RootState, GlobalGetters, any, GlobalMutations>
-
-export const actions = {
-  async fetchEntries({ commit }: Ctx, projectId: number) {
-    console.log(`Fetching entries for project ${projectId}`)
-
-    // simulating async call
-    await new Promise(resolve => setTimeout(resolve, 500))
-
-    // some entries
-    const response: Entry[] = [
-      { id: 0, name: 'AEntry' },
-      { id: 1, name: 'BEntry' },
-      { id: 2, name: 'CEntry', optional: { configurable: true } },
-      { id: 3, name: 'AEntry', optional: { configurable: true } }
-    ]
-
-    // typed commit
-    commit('SET_ENTRIES', response)
-
-    return response
-  }
-}
-
-export type GlobalActions = typeof actions
-
-// Module
-
-export const global = {
-  namespaced: true,
-  state,
-  mutations,
-  getters,
-  actions
-}
+})
 ```
 
-By using `ActionContext` (generic type from library not from `vue`) and specifying that first argument of method is of type `Ctx`, TypeScript knows what are module mutations, what is state type and what Getters are available, and all of it is typed.
+**Pros:**
+ * all definitions in one object
+ * partially typed signature for getters and mutations
 
-## Exposing module as seperate imports for other parts of application
+**Cons:**
+ * `state`, `getters` and `mutations` are typed as any for `actions` 
+
+### 2. All in one file, but in seperate variables
+
+```typescript
+interface Post {
+  id: number;
+  author: string;
+  text: string;
+}
+
+const state = defineState({
+  posts: Post[],
+  // let's store `id` of a main post
+  mainPost: null as number | null
+})
+
+// 👇 we are passing state as a parameter, only for getting proper type
+const getters = defineGetters(state, {
+  // 👇 no need to annotate state type
+  getPostById: state => (id: number) => {
+    return state.posts.find(post => post.id === id)
+  },
+
+  // 👇 no need to annotate state type
+  getMainPost: (state, getters) => {
+    // unfortunately, getters cannot self reference
+    // so they are typed as any
+    const { mainPost } = state
+
+    return mainPost ? getters.getPostById(mainPost) : null
+  }
+})
+
+// 👇 we are passing state as a parameter, only for getting proper type
+const mutations = defineMutations(state, {
+  // 👇 no need to annotate state type
+  postsFetched(state, newPosts: Post[]) {
+    this.posts = [...newPosts]
+  }
+})
+
+const actions = defineActions(state, getters, mutations, {
+  // 👇 action first param is fully typed!
+  fetchPosts({ commit, getters }) {
+    const newPosts = /* some api call */
+
+    // ✅ fully typed commit
+    commit('postsFetched', newPosts)
+    // ❌ TYPO! there is no such mutation, so TS will complain about first argument
+    commit('postFetche', newPosts)
+    // ✅ if we want, getters are also fully typed
+    getters.posts
+  }
+})
+```
+
+**Pros:**
+ * all definitions in seperate objects, we got more control
+ * every part of module is fully typed!
+
+**Cons:**
+ * few code lines more
+
+### 3. All in seperate files
+
+Nearly same as example above, but with file seperation
+
+```typescript
+// state.ts
+const state = defineState({
+  // ...
+})
+
+export default state
+
+// getters.ts
+import state from './state'
+
+const getters = defineGetters(state, {
+  // ...
+})
+
+export default getters
+
+// mutations.ts
+import state from './state'
+
+const mutations = defineMutations(state, {
+  // ...
+})
+
+export default mutations
+
+// actions.ts
+import state from './state'
+import getters from './getters'
+import mutations from './mutations'
+
+const actions = defineActions(state, getters, mutations, {
+  // ...
+})
+
+export default actions
+```
+
+**Pros:**
+ * all definitions in seperate objects and seperate files
+ * more control
+ * better seperation
+ * better readability
+ * every part of module is fully typed!
+
+**Cons:**
+ * few code lines more
+ * more files to maintain
+ * in smaller projects, can be overwhelming
+
+---
+
+**NOTE:**
+
+`defineActions` have 3 signatures:
+```typescript
+// using only state
+defineActions(state, { /*actions*/ })
+
+// using state and getters
+defineActions(state, getters, { /*actions*/ })
+
+// using all
+defineActions(state, getters, mutations, { /*actions*/ })
+
+// if you have only state and mutations
+defineActions(state, {}, mutations, { /*actions*/ })
+```
+
+## Creating exports
+
+---
+
+**IMPORTANT!**
+
+_With usage of `get` helpers, we recommend adding webpack plugin to detect and avoid circular dependencies, like [circular-dependency-plugin](https://www.npmjs.com/package/circular-dependency-plugin), as it may stop working if there are any circular dependencies._
+
+---
 
 With strongly typed store, it would be a shame to lose it in components. That's why there are special methods, that make it possible.
 
-To properly setup library, you need to register store in `store` file or `main` using method `registerStore`.
+To properly setup library, you need to register store in `store` file or `main` using method `registerStore`, as mentioned on the beginning.
 
 ```typescript
 import { registerStore } from '@owlsdepartment/vuex-typed'
@@ -116,25 +287,60 @@ import store from './store'
 registerStore(store)
 ```
 
-Now you can expose state, actions, mutations and getters. Using previouse `store` example:
+Now you can expose state, actions, mutations and getters.
+
+Using previouse `store` example:
 ```typescript
 // state.ts
-export const { entries } = getState(state, 'global')
+export const rootState = getState(state)
 
 // getters.ts
-export const { allEntries } = getGetters(getters, 'global')
+export const rootGetters = getGetters(getters)
 
 // mutations.ts
-export const { SET_ENTRIES } = getMutations(mutations, 'global')
+export const rootMutations = getMutations(mutations)
 
 // actions.ts
-export const { fetchEntries } = getActions(actions, 'global')
+export const rootActions = getActions(actions)
+```
 
-```
 Or whole module at once
+
 ```typescript
-export const { state, getters, mutations, actions } = getModuleImports(global, 'global')
+export const {
+  state: rootState,
+  getters: rootGetters,
+  mutations: rootMutations,
+  actions: rootActions
+} = getModuleImports(store)
 ```
+
+In case of namespaced module:
+
+```typescript
+// post/state.ts
+export const postState = getState(state, /*namespace*/ 'post')
+
+// post/getters.ts
+export const postGetters = getGetters(getters, /*namespace*/ 'post')
+
+// post/mutations.ts
+export const postMutations = getMutations(mutations, /*namespace*/ 'post')
+
+// post/actions.ts
+export const postActions = getActions(actions, /*namespace*/ 'post')
+
+// or whole module
+// post/index.ts
+export const {
+  state: postState,
+  getters: postGetters,
+  mutations: postMutations,
+  actions: postActions
+} = getModule(post, 'post')
+```
+
+Any of the exports can be desctructured using ES6 desctructuring notation to export only specific methods.
 
 Every method expects object as first argument (or method in case of `getState`) and optional `namespace` as a second argument in case of namespaced modules.
 
@@ -149,47 +355,49 @@ Usage example in Vue component:
 
 <script lang="ts">
 import Vue from 'vue'
-import { fetchEntries } from '@/store/modules/global/actions'
-import { SET_ENTRIES } from '@/store/modules/global/mutations'
-import { allEntries } from '@/store/modules/global/getters'
-import { state as globalState } from '@/store/module/global'
+import {
+  postState,
+  postGetters,
+  postMutations,
+  postActions,
+  // interface import
+  Post
+} from '@/store/modules/post'
 
 export default Vue.extend({
   computed: {
-    // spread whole state
-    ...globalState,
+    allPosts(): Post[] {
+      // To get state value or getters value, you need to call it as a method, but don't worry, TS will warn you!
+      return postState.posts()
+    },
 
     // if you want to expose getter of state to template, you need to use it in computed...
-    allEntries,
+    mainPost: postGetters.getMainPost,
   },
 
   mounted() {
     // ...but if you just use it inside <script>, there's no need for that
-    fetchEntries(0)
-  },
-
-  methods: {
-    removeAll() {
-      SET_ENTRIES([])
-    }
+    postActions.fetchPosts()
   }
 })
 </script>
 ```
 
-Usage example in normal `.ts/.js` file:
-```typescript
-import { fetchEntries } from '@/store/modules/global/actions'
-import { allEntries } from '@/store/modules/global/getters'
+**NOTE:** Imported Vuex can be used also in normal TS files!
 
-const onUserLogin = () => {
-  if (allEntries().length === 0) {
-    fetchEntries()
+## API
+
+You can also don't use `define` helpers and manually get specific part type and use it directly. As it is simple with `getters` and `mutations`, `actions` gets complicated, so we recommend using `ActionContext` helper to type first argument of actions like this:
+
+```typescript
+type Ctx = ActionContext<State, Getters, Mutations>
+
+const actions = {
+  apiCall({}: Ctx) {
+    // data fetching
   }
 }
 ```
-
-## API
 
 ### ActionContext signature
 
@@ -230,39 +438,6 @@ export interface ActionContext<
     commit: Commit<Mutations>,
     dispatch: Dispatch<any>
 }
-```
-
-### getModuleImports
-
-```typescript
-function mapModule<State, Getters, Mutations, Actions>(
-  module: Module<State, Getters, Mutations, Actions>,
-  namespace: string = ''
-): MappedModule<State, Getters, Mutations, Actions>
-```
-
-### getState
-
-```typescript
-function getState<State extends object | (() => object)>(state: State, namespace: string = ''): MappedState<State>
-```
-
-### getMutations
-
-```typescript
-function getMutations<Mutations>(mutations: Mutations, namespace: string = ''): MappedMutations<Mutations>
-```
-
-### getGetters
-
-```typescript
-function getGetters<Getters>(getters: Getters, namespace: string = ''): MappedGetters<Getters>
-```
-
-### getActions
-
-```typescript
-function getActions<Actions>(actions: Actions, namespace: string = ''): MappedActions<Actions>
 ```
 
 ## Project Status
