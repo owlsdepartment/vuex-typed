@@ -51,5 +51,3 @@ export type OptionalSecondParam<
 > = O extends undefined
     ? undefined
     : O;
-
-export type FilterUndefined<A> = A extends undefined ? never : A

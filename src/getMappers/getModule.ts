@@ -4,7 +4,6 @@ import { getState, MappedState } from './getState'
 import { getGetters, MappedGetters } from './getGetters'
 import { getMutations, MappedMutations } from './getMutations'
 import { getActions, MappedActions } from './getActions'
-import { FilterUndefined } from '@/typings/types'
 
 const fields = ['state', 'getters', 'mutations', 'actions'] as const
 const methods = {
@@ -18,7 +17,7 @@ type MappedModule<M extends ModuleDef> = {
     state: MappedState<M['state']>,
     getters: MappedGetters<M['getters']>,
     mutations: MappedMutations<M['mutations']>,
-    actions: MappedActions<FilterUndefined<M['actions']>>
+    actions: MappedActions<NonNullable<M['actions']>>
 }
 
 /**

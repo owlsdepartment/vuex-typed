@@ -2,6 +2,7 @@ import { mapGetters } from 'vuex'
 
 import { getGetters } from '@/getMappers/getGetters'
 import * as createImportsModule from '@/helpers/createImports'
+import { WithHelpers } from '@/getMappers/withHelpers'
 
 describe('>>> getGetters', () => {
     it('maps provided getters as object to computed getters', () => {
@@ -33,5 +34,13 @@ describe('>>> getGetters', () => {
         expect(spyOnCreate).toBeCalledWith<[object, Function, string]>(
             getters, mapGetters, namespace
         )
+    })
+
+    it('returns instance of `WithHelpers`', () => {
+        const getters = { bar: () => {} }
+
+        const returnValue = getGetters(getters)
+
+        expect(returnValue).toBeInstanceOf(WithHelpers)
     })
 })

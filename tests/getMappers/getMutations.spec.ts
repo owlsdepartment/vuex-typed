@@ -2,6 +2,7 @@ import { mapMutations } from 'vuex'
 
 import { getMutations } from '@/getMappers/getMutations'
 import * as createImportsModule from '@/helpers/createImports'
+import { WithHelpers } from '@/getMappers/withHelpers'
 
 describe('>>> getMutations', () => {
     it('maps provided mutations as object to computed mutations', () => {
@@ -33,5 +34,13 @@ describe('>>> getMutations', () => {
         expect(spyOnCreate).toBeCalledWith<[object, Function, string]>(
             mutations, mapMutations, namespace
         )
+    })
+
+    it('returns instance of `WithHelpers`', () => {
+        const mutations = { foo(state: any) {} }
+
+        const returnValue = getMutations(mutations)
+
+        expect(returnValue).toBeInstanceOf(WithHelpers)
     })
 })

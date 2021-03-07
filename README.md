@@ -385,6 +385,33 @@ export default Vue.extend({
 
 **NOTE:** Imported Vuex can be used also in normal TS files!
 
+## Map helper
+
+Objects created with `getXXX` has also a `map` method, that works just like `mapXXX` from base Vuex, but don't need module specified and, of course, is fully typed. `map` allows to extract only what you need and, if used with object as param, rename methods.
+
+Example usage:
+```vue
+<template>
+  <!-- some template -->
+</template>
+
+<script lang="ts">
+import Vue from 'vue'
+import { postGetters, postState } from '@/store/modules/post'
+
+export default Vue.extend({
+  computed: {
+    // array notation
+    ...postGetters.map(['getMainPost', 'getPostById']),
+    // object notation with renaming!
+    ...postState.map({
+      allPosts: 'posts'
+    })
+  }
+})
+</script>
+```
+
 ## API
 
 You can also don't use `define` helpers and manually get specific part type and use it directly. As it is simple with `getters` and `mutations`, `actions` gets complicated, so we recommend using `ActionContext` helper to type first argument of actions like this:

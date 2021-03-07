@@ -2,6 +2,7 @@ import { mapState } from 'vuex'
 
 import { getState } from '@/getMappers/getState'
 import * as createImportsModule from '@/helpers/createImports'
+import { WithHelpers } from '@/getMappers/withHelpers'
 
 describe('>>> getState', () => {
     it('maps provided state as object or function, to computed getters', () => {
@@ -45,5 +46,13 @@ describe('>>> getState', () => {
         expect(spyOnCreate).toBeCalledWith<[object, Function, string]>(
             state, mapState, namespace
         )
+    })
+
+    it('returns instance of `WithHelpers`', () => {
+        const state = { init: 1 }
+
+        const returnValue = getState(state)
+
+        expect(returnValue).toBeInstanceOf(WithHelpers)
     })
 })
