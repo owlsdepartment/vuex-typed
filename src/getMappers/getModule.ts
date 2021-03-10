@@ -13,11 +13,13 @@ const methods = {
   actions: getActions
 } as const
 
+type ProvideDefault<T> = T extends null | undefined ? {} : T
+
 type MappedModule<M extends ModuleDef> = {
-    state: MappedState<M['state']>,
-    getters: MappedGetters<M['getters']>,
-    mutations: MappedMutations<M['mutations']>,
-    actions: MappedActions<NonNullable<M['actions']>>
+    state: MappedState<ProvideDefault<M['state']>>,
+    getters: MappedGetters<ProvideDefault<M['getters']>>,
+    mutations: MappedMutations<ProvideDefault<M['mutations']>>,
+    actions: MappedActions<ProvideDefault<M['actions']>>
 }
 
 /**
