@@ -2,7 +2,7 @@ import { mapState } from 'vuex'
 
 import { getState } from '@/getMappers/getState'
 import * as createImportsModule from '@/helpers/createImports'
-import { WithHelpers } from '@/getMappers/withHelpers'
+import { AddHelpers } from '@/getMappers/addHelpers'
 
 describe('>>> getState', () => {
     it('maps provided state as object or function, to computed getters', () => {
@@ -48,11 +48,11 @@ describe('>>> getState', () => {
         )
     })
 
-    it('returns instance of `WithHelpers`', () => {
+    it('returns instance of `AddHelpers`', () => {
         const state = { init: 1 }
 
         const returnValue = getState(state)
 
-        expect(returnValue).toBeInstanceOf(WithHelpers)
+        expect(returnValue).toBeInstanceOf(AddHelpers)
     })
 })

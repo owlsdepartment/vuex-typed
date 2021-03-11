@@ -2,7 +2,7 @@ import { mapActions } from 'vuex'
 
 import { getActions } from '@/getMappers/getActions'
 import * as createImportsModule from '@/helpers/createImports'
-import { WithHelpers } from '@/getMappers/withHelpers'
+import { AddHelpers } from '@/getMappers/addHelpers'
 
 describe('>>> getActions', () => {
     it('maps provided actions as object to computed actions', () => {
@@ -36,11 +36,11 @@ describe('>>> getActions', () => {
         )
     })
 
-    it('returns instance of `WithHelpers`', () => {
+    it('returns instance of `AddHelpers`', () => {
         const actions = { foo(ctx: any) {} }
 
         const returnValue = getActions(actions)
 
-        expect(returnValue).toBeInstanceOf(WithHelpers)
+        expect(returnValue).toBeInstanceOf(AddHelpers)
     })
 })
