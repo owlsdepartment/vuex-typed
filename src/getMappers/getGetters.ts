@@ -2,7 +2,7 @@ import { mapGetters } from 'vuex'
 
 import { ObjectWithMethods } from '@/typings/types'
 import { createImports } from '@/helpers/createImports'
-import { WithHelpers } from './withHelpers'
+import { AddHelpers, WithHelpers } from './addHelpers'
 
 export type MappedGetters<G extends ObjectWithMethods> = {
     [K in keyof G]: () => ReturnType<G[K]>
@@ -12,7 +12,7 @@ export type MappedGetters<G extends ObjectWithMethods> = {
  * Get Vuex getters object, mapped for export
  */
 export function getGetters<G extends ObjectWithMethods>(getters: G, namespace: string = ''): WithHelpers<MappedGetters<G>> {
-    return WithHelpers.wrap(
+    return AddHelpers.wrap(
         createImports(getters, mapGetters, namespace) as MappedGetters<G>
     )
 }

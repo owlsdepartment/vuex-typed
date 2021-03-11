@@ -1,15 +1,15 @@
-import { WithHelpers } from '@/getMappers/withHelpers'
+import { AddHelpers } from '@/getMappers/addHelpers'
 
-describe('>>> WithHelpers', () => {
+describe('>>> AddHelpers', () => {
     it('has a private constructor', () => {
         // @ts-expect-error
-        const instance = new WithHelpers({})
+        const instance = new AddHelpers({})
     })
 
     it('creates instance through a static method', () => {
-        const instance = WithHelpers.wrap({})
+        const instance = AddHelpers.wrap({})
 
-        expect(instance).toBeInstanceOf(WithHelpers)
+        expect(instance).toBeInstanceOf(AddHelpers)
     })
 
     it('preserves passed fields', () => {
@@ -17,7 +17,7 @@ describe('>>> WithHelpers', () => {
             foo() {},
             bar() {}
         }
-        const instance = WithHelpers.wrap(base)
+        const instance = AddHelpers.wrap(base)
 
         expect(instance.foo).toBe(base.foo)
         expect(instance.bar).toBe(base.bar)
@@ -26,13 +26,13 @@ describe('>>> WithHelpers', () => {
     it('logs error when `map` is passed in config object', () => {
         const spyOnConsole = jest.spyOn(console, 'error').mockImplementation()
         
-        WithHelpers.wrap({ map() {} })
+        AddHelpers.wrap({ map() {} })
 
         expect(spyOnConsole).toBeCalledTimes(1)
     })
 
     it('provides `map` helper method', () => {
-        const instance = WithHelpers.wrap({})
+        const instance = AddHelpers.wrap({})
 
         expect(instance.map).toBeTruthy()
         expect(typeof instance.map).toBe('function')
@@ -44,7 +44,7 @@ describe('>>> WithHelpers', () => {
                 foo() {},
                 bar() {}
             }
-            const instance = WithHelpers.wrap(base)
+            const instance = AddHelpers.wrap(base)
             const mapped = instance.map(['bar'])
 
             expect(mapped.bar).toBeTruthy()
@@ -57,7 +57,7 @@ describe('>>> WithHelpers', () => {
                 foo() {},
                 bar() {}
             }
-            const instance = WithHelpers.wrap(base)
+            const instance = AddHelpers.wrap(base)
             const mapped = instance.map({ baz: 'bar' })
 
             expect(mapped.baz).toBeTruthy()
@@ -71,7 +71,7 @@ describe('>>> WithHelpers', () => {
                 foo() {},
                 bar() {}
             }
-            const instance = WithHelpers.wrap(base)
+            const instance = AddHelpers.wrap(base)
 
             // @ts-expect-error
             const mappedWithArray = instance.map(['none'])
@@ -84,7 +84,7 @@ describe('>>> WithHelpers', () => {
                 foo() {},
                 bar() {}
             }
-            const instance = WithHelpers.wrap(base)
+            const instance = AddHelpers.wrap(base)
             const notExistingKey = 'none' as const
 
             // @ts-ignore

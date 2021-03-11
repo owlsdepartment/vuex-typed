@@ -4,6 +4,7 @@ import { getState, MappedState } from './getState'
 import { getGetters, MappedGetters } from './getGetters'
 import { getMutations, MappedMutations } from './getMutations'
 import { getActions, MappedActions } from './getActions'
+import { WithHelpers } from './addHelpers'
 
 const fields = ['state', 'getters', 'mutations', 'actions'] as const
 const methods = {
@@ -14,10 +15,10 @@ const methods = {
 } as const
 
 type MappedModule<M extends ModuleDef> = {
-    state: MappedState<NonNullable<M['state']>>,
-    getters: MappedGetters<NonNullable<M['getters']>>,
-    mutations: MappedMutations<NonNullable<M['mutations']>>,
-    actions: MappedActions<NonNullable<M['actions']>>
+    state: WithHelpers<MappedState<NonNullable<M['state']>>>,
+    getters: WithHelpers<MappedGetters<NonNullable<M['getters']>>>,
+    mutations: WithHelpers<MappedMutations<NonNullable<M['mutations']>>>,
+    actions: WithHelpers<MappedActions<NonNullable<M['actions']>>>
 }
 
 /**

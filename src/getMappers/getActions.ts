@@ -2,7 +2,7 @@ import { mapActions } from 'vuex'
 
 import { ObjectWithMethods, OptionalSecondParam } from '@/typings/types';
 import { createImports } from '@/helpers/createImports'
-import { WithHelpers } from './withHelpers';
+import { AddHelpers, WithHelpers } from './addHelpers';
 
 export type MappedActions<A extends ObjectWithMethods> = {
     [K in keyof A]: <Ret = ReturnType<A[K]>>(
@@ -14,7 +14,7 @@ export type MappedActions<A extends ObjectWithMethods> = {
  * Get Vuex actions object, mapped for export
  */
 export function getActions<A extends ObjectWithMethods>(actions: A, namespace: string = ''): WithHelpers<MappedActions<A>> {
-    return WithHelpers.wrap(
+    return AddHelpers.wrap(
         createImports(actions, mapActions, namespace) as MappedActions<A>
     )
 }

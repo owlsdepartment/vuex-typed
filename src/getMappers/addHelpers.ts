@@ -1,8 +1,10 @@
 import { ObjectWithMethods } from "@/typings/types";
 
-export class WithHelpers<Base extends ObjectWithMethods> {
+export type WithHelpers<T extends ObjectWithMethods> = AddHelpers<T> & T
+
+export class AddHelpers<Base extends ObjectWithMethods> {
     static wrap<B extends ObjectWithMethods>(obj: B) {
-        return new WithHelpers(obj) as WithHelpers<B> & B
+        return new AddHelpers(obj) as WithHelpers<B>
     }
 
     private constructor(obj: Base) {
