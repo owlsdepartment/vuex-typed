@@ -1,13 +1,15 @@
 import { mapActions } from 'vuex'
 
-import { ObjectWithMethods, OptionalSecondParam } from '@/typings/types';
+import { MethodWithOptionalParam, ObjectWithMethods, OptionalSecondParam, WrapInPromise } from '@/typings/types';
 import { createImports } from '@/helpers/createImports'
+
 import { AddHelpers, WithHelpers } from './addHelpers';
 
 export type MappedActions<A extends ObjectWithMethods> = {
-    [K in keyof A]: <Ret = ReturnType<A[K]>>(
-        payload: OptionalSecondParam<A, K>
-    ) => Ret extends Promise<any> ? Ret : Promise<Ret>
+    [K in keyof A]: MethodWithOptionalParam<
+        OptionalSecondParam<A, K>,
+        WrapInPromise<ReturnType<A[K]>>
+    >
 }
 
 /**

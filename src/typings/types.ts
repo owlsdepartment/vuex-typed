@@ -26,6 +26,12 @@ interface Operation<O extends ObjectWithMethods, Opt extends Options, Ret> {
     (payloadWithType: { type: string }, options: Opt & { root: true }): Ret;
 }
 
+export type MethodWithOptionalParam<Param, Ret> = Param extends undefined
+    ? () => Ret
+    : (payload: Param) => Ret
+
+export type WrapInPromise<P> = P extends Promise<any> ? P : Promise<P>
+
 type NormalNotationArgs<Payload, Opt extends Options> =
     | Payload extends undefined ? [] : [Payload]
     | [Payload, Opt]

@@ -1,11 +1,15 @@
 import { mapMutations } from 'vuex'
 
-import { ObjectWithMethods, OptionalSecondParam } from '@/typings/types'
+import { MethodWithOptionalParam, ObjectWithMethods, OptionalSecondParam } from '@/typings/types'
 import { createImports } from '@/helpers/createImports'
+
 import { AddHelpers, WithHelpers } from './addHelpers'
 
 export type MappedMutations<M extends ObjectWithMethods> = {
-    [K in keyof M]: (payload: OptionalSecondParam<M, K>) => void
+    [K in keyof M]: MethodWithOptionalParam<
+        OptionalSecondParam<M, K>,
+        void
+    >
 }
 
 /**
