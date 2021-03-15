@@ -14,11 +14,11 @@ interface ModuleDef<
     actions?: Actions,
 }
 
-
 export function defineModule<
     State extends StateDef,
     Getters extends GettersDef<State>,
-    Mutations extends MutationsDef<State>
->(module: ModuleDef<State, Getters, Mutations>) {
+    Mutations extends MutationsDef<State>,
+    Actions extends ActionsDef<State, Getters, Mutations>
+>(module: ModuleDef<State, Getters, Mutations, Actions>) {
     return module
 }
