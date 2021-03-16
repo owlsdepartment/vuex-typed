@@ -1,6 +1,6 @@
 {
   "name": "@owlsdepartment/vuex-typed",
-  "version": "1.4.7",
+  "version": "1.4.8",
   "description": "Package for writing typed Vuex store with component helpers",
   "keywords": [
     "vue",
