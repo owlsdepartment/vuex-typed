@@ -7,7 +7,7 @@ export type ExtractState<S extends StateDef> = S extends (() => object)
     : S
 
 export type GettersDef<State extends StateDef> = {
-    [key: string]: (state: ExtractState<State>, getters: object, rootState: object, rootGetters: object) => any
+    [key: string]: (state: ExtractState<State>, getters: Record<string, any>, rootState: Record<string, any>, rootGetters: Record<string, any>) => any
 }
 
 export type MutationsDef<State extends StateDef> = {
