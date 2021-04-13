@@ -2,26 +2,28 @@ import { mapMutations } from 'vuex'
 
 import { getMutations } from '@/getMappers/getMutations'
 import * as createImportsModule from '@/helpers/createImports'
-import { AddHelpers } from '@/getMappers/addHelpers'
+import { AddHelpers, WithHelpers } from '@/getMappers/addHelpers'
 
 describe('>>> getMutations', () => {
     it('maps provided mutations as object to computed mutations', () => {
         const mutations = {
-            foo(state: any, payload: {}) {},
+            nullish(state: any, payload: number | null) {},
+            foo(state: any, payload: { a: string }) {},
             bar(state: any) {}
         }
         const expectedOutput = {
             foo: expect.any(Function),
-            bar: expect.any(Function)
+            bar: expect.any(Function),
+            nullish: expect.any(Function)
         }
-        type ExpectedOutput = {
-            foo: (payload: {}) => void;
+        type ExpectedOutput = WithHelpers<{
+            nullish: (payload: number | null) => void;
+            foo: (payload: { a: string }) => void;
             bar: () => void;
-        }
-
+        }>
         const mappedMutations = getMutations(mutations)
 
-        expect(mappedMutations).toMatchObject<ExpectedOutput>(expectedOutput)
+        expect<ExpectedOutput>(mappedMutations).toMatchObject(expectedOutput)
     })
 
     it('passes arguments to `createImport` with `mapMutations`', () => {

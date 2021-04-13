@@ -2,26 +2,30 @@ import { mapActions } from 'vuex'
 
 import { getActions } from '@/getMappers/getActions'
 import * as createImportsModule from '@/helpers/createImports'
-import { AddHelpers } from '@/getMappers/addHelpers'
+import { AddHelpers, WithHelpers } from '@/getMappers/addHelpers'
 
 describe('>>> getActions', () => {
     it('maps provided actions as object to computed actions', () => {
         const actions = {
             async foo(ctx: any, payload: {}): Promise<void> {},
-            bar(ctx: any) {}
+            bar(ctx: any) {},
+            baz(ctx: any, data?: string | null): number {
+                return 2;
+            }
         }
         const expectedOutput = {
             foo: expect.any(Function),
             bar: expect.any(Function)
         }
-        type ExpectedOutput = {
+        type ExpectedOutput = WithHelpers<{
             foo: (payload: {}) => Promise<void>;
-            bar: () => void;
-        }
+            bar: () => Promise<void>;
+            baz: (data?: string | null) => Promise<number>
+        }>
 
         const mappedActions = getActions(actions)
 
-        expect(mappedActions).toMatchObject<ExpectedOutput>(expectedOutput)
+        expect<ExpectedOutput>(mappedActions).toMatchObject(expectedOutput)
     })
 
     it('passes arguments to `createImport` with `mapActions`', () => {

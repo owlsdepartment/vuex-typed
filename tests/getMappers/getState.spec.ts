@@ -2,7 +2,7 @@ import { mapState } from 'vuex'
 
 import { getState } from '@/getMappers/getState'
 import * as createImportsModule from '@/helpers/createImports'
-import { AddHelpers } from '@/getMappers/addHelpers'
+import { AddHelpers, WithHelpers } from '@/getMappers/addHelpers'
 
 describe('>>> getState', () => {
     it('maps provided state as object or function, to computed getters', () => {
@@ -24,16 +24,16 @@ describe('>>> getState', () => {
             test: expect.any(Function),
             nested: expect.any(Function)
         }
-        type ExpectedOutput = {
+        type ExpectedOutput = WithHelpers<{
             test: () => number;
             nested: () => (typeof objectState)['nested'];
-        }
+        }>
 
         const mappedObjectState = getState(objectState)
         const mappedFunctionState = getState(functionState)
 
-        expect(mappedObjectState).toMatchObject<ExpectedOutput>(expectedOutput)
-        expect(mappedFunctionState).toMatchObject<ExpectedOutput>(expectedOutput)
+        expect<ExpectedOutput>(mappedObjectState).toMatchObject(expectedOutput)
+        expect<ExpectedOutput>(mappedFunctionState).toMatchObject(expectedOutput)
     })
 
     it('passes arguments to `createImport` with `mapState`', () => {

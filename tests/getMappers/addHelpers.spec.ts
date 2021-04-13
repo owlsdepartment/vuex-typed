@@ -18,6 +18,12 @@ describe('>>> AddHelpers', () => {
             bar() {}
         }
         const instance = AddHelpers.wrap(base)
+        type Expected = {
+            foo(): void;
+            bar(): void;
+            map(arg: Record<string, string> | string[]): object;
+        }
+        const e: Expected = instance;
 
         expect(instance.foo).toBe(base.foo)
         expect(instance.bar).toBe(base.bar)

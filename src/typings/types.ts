@@ -13,28 +13,21 @@ interface Options {
 }
 
 interface Operation<O extends ObjectWithMethods, Opt extends Options, Ret> {
-    <K extends keyof O>(
-        type: K,
-        ...args: NormalNotationArgs<OptionalSecondParam<O, K>, Opt>
-    ): Ret;
-    <K extends keyof O>(
-        payloadWithType: { type: K } & ObjectNotationArgs<OptionalSecondParam<O, K>>,
-        options?: Opt
-    ): Ret;
+    <K extends keyof O>(type: K, ...args: NormalNotationArgs<OmitFirstParam<O[K]>, Opt>): Ret;
+    <K extends keyof O>(payloadWithType: { type: K } & ObjectNotationArgs<OmitFirstParam<O[K]>[0]>, options?: Opt): Ret;
 
     (type: string, payload: any, options: Opt & { root: true }): Ret;
     (payloadWithType: { type: string }, options: Opt & { root: true }): Ret;
 }
 
-export type MethodWithOptionalParam<Param, Ret> = Param extends undefined
-    ? () => Ret
-    : (payload: Param) => Ret
+export type MethodWithoutFirstParam<Func extends (...args: any[]) => any, RetVal> = (...args: OmitFirstParam<Func>) => RetVal
 
 export type WrapInPromise<P> = P extends Promise<any> ? P : Promise<P>
 
-type NormalNotationArgs<Payload, Opt extends Options> =
-    | Payload extends undefined ? [] : [Payload]
-    | [Payload, Opt]
+type NormalNotationArgs<Payload extends ReadonlyArray<any>, Opt extends Options> =
+    Payload extends []
+        ? [payload: undefined, options?: Opt]
+        : [...payload: Payload, options?: Opt]
 
 type ObjectNotationArgs<Payload> = Payload extends object
     ? Payload
@@ -50,10 +43,4 @@ export type ExtractGetter<Getter extends ObjectWithMethods> = {
     [K in keyof Getter]: ReturnType<Getter[K]>
 }
 
-export type SecondParam<T extends ObjectWithMethods, K extends keyof T> = Parameters<T[K]>[1]
-
-export type OptionalSecondParam<
-    T extends ObjectWithMethods, K extends keyof T, O = SecondParam<T, K>
-> = O extends undefined
-    ? undefined
-    : O;
+export type OmitFirstParam<T extends (...args: any) => any> = T extends (_: any, ...args: infer Rest) => any ? Rest : never;
