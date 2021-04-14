@@ -13,21 +13,20 @@ interface Options {
 }
 
 interface Operation<O extends ObjectWithMethods, Opt extends Options, Ret> {
-    <K extends keyof O>(type: K, ...args: NormalNotationArgs<OmitFirstParam<O[K]>, Opt>): Ret;
+    <K extends keyof O>(type: K, ...args: NormalNotationArgs<OmitFirstParam<O[K]>[0], Opt>): Ret;
     <K extends keyof O>(payloadWithType: { type: K } & ObjectNotationArgs<OmitFirstParam<O[K]>[0]>, options?: Opt): Ret;
 
     (type: string, payload: any, options: Opt & { root: true }): Ret;
-    (payloadWithType: { type: string }, options: Opt & { root: true }): Ret;
+    (payloadWithType: { type: string } & Record<string, any>, options: Opt & { root: true }): Ret;
 }
 
 export type MethodWithoutFirstParam<Func extends (...args: any[]) => any, RetVal> = (...args: OmitFirstParam<Func>) => RetVal
 
 export type WrapInPromise<P> = P extends Promise<any> ? P : Promise<P>
 
-type NormalNotationArgs<Payload extends ReadonlyArray<any>, Opt extends Options> =
-    Payload extends []
-        ? [payload: undefined, options?: Opt]
-        : [...payload: Payload, options?: Opt]
+type NormalNotationArgs<Payload, Opt extends Options> =
+    | Payload extends undefined ? [] : [payload: Payload]
+    | [payload: Payload, options: Opt]
 
 type ObjectNotationArgs<Payload> = Payload extends object
     ? Payload

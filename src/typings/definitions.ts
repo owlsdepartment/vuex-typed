@@ -42,7 +42,7 @@ export interface ActionContext<
     rootState: ExtractState<RootState>,
     rootGetters: ExtractGetter<RootGetters>,
     commit: Commit<Mutations>,
-    dispatch: Dispatch<any>
+    dispatch: Dispatch<ObjectWithMethods>
 }
 
 
@@ -76,5 +76,5 @@ export interface ActionContextDeprecated<
     rootState: ExtractState<RootState>,
     rootGetters: ExtractGetter<RootGetters>,
     commit: Commit<Mutations>,
-    dispatch: Dispatch<any>
+    dispatch: Dispatch<ObjectWithMethods>
 }
