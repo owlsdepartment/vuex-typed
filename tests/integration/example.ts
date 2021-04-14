@@ -1,4 +1,5 @@
-import { Store } from 'vuex'
+import Vue from 'vue'
+import Vuex, { Store } from 'vuex'
 
 import { defineModule } from '@/define'
 
@@ -39,6 +40,8 @@ const loadingModule = defineModule({
 const modules= {
     loading: loadingModule
 }
+
+Vue.use(Vuex);
 
 const store = new Store({
     modules,
