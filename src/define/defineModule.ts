@@ -1,21 +1,23 @@
-import { ActionsDef, GettersDef, MutationsDef, StateDef } from "@/typings";
+import { ActionsDef, GettersDef, MutationsDef, ObjectWithMethods, StateDef } from "@/typings";
 
 interface ModuleDef<
     State extends StateDef,
     Getters extends GettersDef<State>,
     Mutations extends MutationsDef<State>,
+    Actions extends ObjectWithMethods = ActionsDef<State, Getters, Mutations>
 > {
     namespaced?: boolean,
     state?: State,
     getters?: Getters,
     mutations?: Mutations,
-    actions?: ActionsDef<State, Getters, Mutations>,
+    actions?: Actions,
 }
 
 export function defineModule<
     State extends StateDef,
     Getters extends GettersDef<State>,
-    Mutations extends MutationsDef<State>
->(module: ModuleDef<State, Getters, Mutations>) {
+    Mutations extends MutationsDef<State>,
+    Actions extends ObjectWithMethods = ActionsDef<State, Getters, Mutations>
+>(module: ModuleDef<State, Getters, Mutations, Actions>) {
     return module
 }

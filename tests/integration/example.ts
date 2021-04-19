@@ -32,8 +32,8 @@ const loadingModule = defineModule({
 
     actions: {
         test({ commit }) {
-            commit('')
-        }
+			commit('')
+		}
     }
 });
 
