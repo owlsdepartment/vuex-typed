@@ -24,9 +24,10 @@ export type MethodWithoutFirstParam<Func extends (...args: any[]) => any, RetVal
 
 export type WrapInPromise<P> = P extends Promise<any> ? P : Promise<P>
 
+// can used labeled tuples in proper TS version
 type NormalNotationArgs<Payload, Opt extends Options> =
-    | Payload extends undefined ? [] : [payload: Payload]
-    | [payload: Payload, options: Opt]
+    | Payload extends undefined ? [] : [Payload]
+    | [Payload, Opt]
 
 type ObjectNotationArgs<Payload> = Payload extends object
     ? Payload
